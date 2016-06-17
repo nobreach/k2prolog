@@ -2,7 +2,7 @@
 
 /* -------------------- The rewriter ("K executor") -------------------- */
 /* This is supposed to be language independent (but it's probably not yet
- *  for this simple example. The goal is to make it so! */
+ * for this simple example. The goal is to make it so! */
 /* ----------------------------------------------------------------------*/
 
 /* --- rewrite predicate ---*/
@@ -21,12 +21,7 @@ rewrite(Cin,Cout) :-
    is a little bit ad-hoc, but the idea will be to have a "library" of such operations
    which can be used for any K definition. All K backends must do this: Java backend maps 
    those K builltin operations to Java lists/sets etc., Maude backend maps them to Maude
-   machinery etc. 
-
-   Question: I suppose SICStus has excellent libraries for lists/maps etc. Shall we use that? 
-   Will LOGEN be happy? 
-
-   For now, a couple of handmade (and probably buggy) ones. */
+   machinery etc. */
 
 /* readEnv(in:Env,in:Var,out:Value): reads the value of a var from the environment */
 readEnv([],_,bot).
@@ -52,54 +47,7 @@ updateEnv([],Elem,[Elem]).
    revised, this is just a quick experiment). Configurations are in the form 
    conf(cell1(...), ..., celln(...)). Cell are supposed to contains, like in K, either
    a list, or a map, a set, bag etc. This simple example only shows list (in the k cell, 
-   containing the program) and a map (the state cell). 
-
-   Ideally, this part should come mechanically, either by parsing a standard K definition
-   ourselves or by using the K-Prolog kompile backend in order to output something
-   similar for us. 
-
-   For execution, the program to be executed must be injected, as in K, into the k 
-   cell, as it's only element (the k cell is a list!). 
-   This should be done automatically (but is done manually here.  
-   
-   EXAMPLES
-   
-   - program 1:
-        assign(x,3)
-   
-   - query: 
-        rewrite(conf(k([assign(var(x),6)]), state([]) ),X).
-   
-   -result: 
-        X = conf(k([]),state([pair(x,6)])) 
-        
-   (k cell is empty, i.e. pgm has been executed, and state maps x to 6!) 
-        
-   - program 2:
-        seq(
-          assign(x,3),
-          assign(z,2)
-        )
-        
-   - query: 
-        rewrite(conf(k([seq(assign(var(x),6),assign(var(z),2))]),state([])),X).
-   
-   - result:
-         X = conf(k([]),state([pair(z,2),pair(x,6)]))
-    
-   (same as above. notice the sequencing of 2 instructions) 
-
-   - program 3:
-        assign(x,mul(6,6))     
-        
-   - query:
-        rewrite(conf(k([assign(var(x),mul(6,6))]), state([]) ),X). 
-
-   - result:
-        X = conf(k([]),state([pair(x,36)])) 
-        
-   (heating/cooling rules for assignment -- can now eval subexpressions, yeah! )
-*/
+   containing the program) and a map (the state cell). */
    
 /* ----------------------------------------------------------------------*/
 
@@ -136,7 +84,6 @@ rule(
       state(E)))) :- \+number(Exp).
 
 /* assign (cooling) */
-
 rule(
   l(conf(
     k([V,assign(var(X),hole)|K]),
