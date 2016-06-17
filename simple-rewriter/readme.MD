@@ -1,7 +1,7 @@
 This is a first, very simple attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
 and executing it in prolog. 
 
-The original K definition is included for comparison. 
+The original K definition is included for comparison (and kept in synch with the prolog one).
 
 The prolog file contains both the "K executor" part and the language definition to be executed ("IMP"). This should clearly be spltted later on. 
 The "K executor" basically consists of two things 
@@ -73,17 +73,25 @@ As the name says...
 
 ` X = conf(k([]),state([pair(z,2),pair(x,6)]))`
 
+# Making it nicer
+
+Once we hape a program `P`, we want to actually build the query 
+
+`rewrite(conf(k([P]),state([])),X).`
+
+This is of course assuming we want to start from an empty state (which is almost never the case in "real" language definitions including KPHP). But that's a start! 
+
+What about having `P` in a file which can be loaded? 
 
 # TODO
-## language 
-* finish adding "heating" and "cooling" rules (in K this is done automatically by using the [strict] tags
-* add rules for conditional (IF)
+## language example
+* add remaining "heating" and "cooling" rules (keep in synch K and prolog!) 
+* add rules for conditional (including heating/cooling)
 
-## structure
-* separate the executor from the language definition
-* inject the program to be executed into the K cell
-* make the executor more language agnostic (polish) 
-* implement all K data types (maps, lists, sets etc.). Use SICStus libraries?!
+## K executor
+* separate executor, language definition and program to be executed (see above)
+* make the executor more language agnostic (polish, cleanup, generalise) 
+* implement property K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
 
 ## automatic translation of K defs?
 * we don't want to do it manually :) 
