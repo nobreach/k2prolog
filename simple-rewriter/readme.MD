@@ -1,14 +1,25 @@
-This is a first, very simple attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
-and executing it in prolog. 
+This is a first attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
+and executing it in prolog. Execution in prolog is done by a couple of extra predicates (the executor).
 
-The original K definition is included for comparison (and kept in synch with the prolog one).
+# K definition of the IMP language
+
+The original K definition is in the file `imp.k`, for comparison. I'll keep it in synch with the prolog translation.
+It can be compiled in K with `kompile imp.k`; given a program, say `hello-world.imp`, this can be executed with `krun hello-world.imp`.
+
+# The Prolog translation of the K rules
 
 The prolog file contains both the "K executor" part and the language definition to be executed ("IMP"). This should clearly be spltted later on. 
-The "K executor" basically consists of two things 
-* the "rewrite" predicate, which tell prolog to keep looking for rules to apply until done or stuck (like in K) 
-* prolog implementations of the K data types and their operations: maps, lists, bags sets etc.  
 
-I (Daniele) will provide more detailed explanations here, but for now please see the prolog file, which is heavily commented! 
+The original K rules for IMP are manually translated into prolog in a straigtforward way, but they are more verbose. 
+Actually, this resembles the translation to Maude that K itself used to do; basically, the stuff that is kept implicit in the fancy K syntax is made explicit (more on this later id needed).
+Apart from this, the rules are basically the same.
+
+# The "K executor" written in prolog
+
+The executor consists of two parts 
+* the `rewrite` predicate, which tell prolog to keep looking for rules to apply until done (i.e. the k cell is empty) or stuck (nb: now is shows a result only if the computation succeds i.e. if the k cell remains empty. If it gets stuck prolog just says "no". Should fix this.) 
+* prolog implementations of the K data types and their operations: maps, lists, bags sets etc. I have written a couple of predicates for now, but what about using SICStus library for that?
+
 # Examples
 
 ## Simple assignment
