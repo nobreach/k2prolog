@@ -9,18 +9,81 @@ The "K executor" basically consists of two things
 * prolog implementations of the K data types and their operations: maps, lists, bags sets etc.  
 
 I (Daniele) will provide more detailed explanations here, but for now please see the prolog file, which is heavily commented! 
+# Examples
 
-## TODO
-### language 
-* add "heating" and "cooling" rules (in K this is done automatically by using the [strict] tags
-* add rules for conditional (IF) 
-* add rules for WHILE 
+## Simple assignment
 
-### structure
+Just assign a numeric value to a variable
+
+### Intended program
+
+`x := 3;`
+
+### AST (the syntax we actually use)
+
+`assign(x,3)`
+
+### Query
+
+`rewrite(conf(k([assign(var(x),6)]), state([]) ),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,6)]))`
+
+## Assignment of complex expression
+
+This requires evaluation of subexpressions using K's heating & cooling mechanism. 
+
+### Intended program
+
+`x := 6 * 6;`
+
+### AST (the syntax we actually use)
+
+`assign(x,mul(6,6))`
+
+### Query
+
+`rewrite(conf(k([assign(var(x),mul(6,6))]), state([]) ),X).`
+
+### Result
+
+## Sequencing
+
+As the name says...
+
+### Intended program
+
+`x := 3;
+ z := 2;`
+
+### AST (the syntax we actually use)
+
+` seq(
+          assign(x,3),
+          assign(z,2)
+        )`
+
+### Query
+
+`rewrite(conf(k([seq(assign(var(x),6),assign(var(z),2))]),state([])),X).`
+
+### Result
+
+` X = conf(k([]),state([pair(z,2),pair(x,6)]))`
+
+
+# TODO
+## language 
+* finish adding "heating" and "cooling" rules (in K this is done automatically by using the [strict] tags
+* add rules for conditional (IF)
+
+## structure
 * separate the executor from the language definition
 * inject the program to be executed into the K cell
 * make the executor more language agnostic (polish) 
 * implement all K data types (maps, lists, sets etc.). Use SICStus libraries?!
 
-### automatic translation of K defs?
+## automatic translation of K defs?
 * we don't want to do it manually :) 
