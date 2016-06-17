@@ -1,26 +1,110 @@
-This is a first, very simple attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
-and executing it in prolog. 
+This is a first attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
+and executing it in prolog. Execution in prolog is done by a couple of extra predicates (the executor).
 
-The original K definition is included for comparison. 
+# K definition of the IMP language
+
+The original K definition is in the file `imp.k`, for comparison. I'll keep it in synch with the prolog translation.
+It can be compiled in K with `kompile imp.k`; given a program, say `hello-world.imp`, this can be executed with `krun hello-world.imp`.
+
+# The Prolog translation of the K rules
 
 The prolog file contains both the "K executor" part and the language definition to be executed ("IMP"). This should clearly be spltted later on. 
-The "K executor" basically consists of two things 
-* the "rewrite" predicate, which tell prolog to keep looking for rules to apply until done or stuck (like in K) 
-* prolog implementations of the K data types and their operations: maps, lists, bags sets etc.  
 
-I (Daniele) will provide more detailed explanations here, but for now please see the prolog file, which is heavily commented! 
+The original K rules for IMP are manually translated into prolog in a straigtforward way, but they are more verbose. 
+Actually, this resembles the translation to Maude that K itself used to do; basically, the stuff that is kept implicit in the fancy K syntax is made explicit (more on this later id needed).
+Apart from this, the rules are basically the same.
 
-## TODO
-### language 
-* add "heating" and "cooling" rules (in K this is done automatically by using the [strict] tags
-* add rules for conditional (IF) 
-* add rules for WHILE 
+# The "K executor" written in prolog
 
-### structure
-* separate the executor from the language definition
-* inject the program to be executed into the K cell
-* make the executor more language agnostic (polish) 
-* implement all K data types (maps, lists, sets etc.). Use SICStus libraries?!
+The executor consists of two parts 
+* the `rewrite` predicate, which tell prolog to keep looking for rules to apply until done (i.e. the k cell is empty) or stuck (nb: now is shows a result only if the computation succeds i.e. if the k cell remains empty. If it gets stuck prolog just says "no". Should fix this.) 
+* prolog implementations of the K data types and their operations: maps, lists, bags sets etc. I have written a couple of predicates for now, but what about using SICStus library for that?
 
-### automatic translation of K defs?
+# Examples
+
+## Simple assignment
+
+Just assign a numeric value to a variable
+
+### Intended program
+
+`x := 3;`
+
+### AST (the syntax we actually use)
+
+`assign(x,3)`
+
+### Query
+
+`rewrite(conf(k([assign(var(x),6)]), state([]) ),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,6)]))`
+
+## Assignment of complex expression
+
+This requires evaluation of subexpressions using K's heating & cooling mechanism. 
+
+### Intended program
+
+`x := 6 * 6;`
+
+### AST (the syntax we actually use)
+
+`assign(x,mul(6,6))`
+
+### Query
+
+`rewrite(conf(k([assign(var(x),mul(6,6))]), state([]) ),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,36)]))`
+
+## Sequencing
+
+As the name says...
+
+### Intended program
+
+`x := 3;
+ z := 2;`
+
+### AST (the syntax we actually use)
+
+` seq(
+          assign(x,3),
+          assign(z,2)
+        )`
+
+### Query
+
+`rewrite(conf(k([seq(assign(var(x),6),assign(var(z),2))]),state([])),X).`
+
+### Result
+
+` X = conf(k([]),state([pair(z,2),pair(x,6)]))`
+
+# Making it nicer
+
+Once we hape a program `P`, we want to actually build the query 
+
+`rewrite(conf(k([P]),state([])),X).`
+
+This is of course assuming we want to start from an empty state (which is almost never the case in "real" language definitions including KPHP). But that's a start! 
+
+What about having `P` in a file which can be loaded? 
+
+# TODO
+## language example
+* add remaining "heating" and "cooling" rules (keep in synch K and prolog!) 
+* add rules for conditional (including heating/cooling)
+
+## K executor
+* separate executor, language definition and program to be executed (see above)
+* make the executor more language agnostic (polish, cleanup, generalise) 
+* implement property K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
+
+## automatic translation of K defs?
 * we don't want to do it manually :) 
