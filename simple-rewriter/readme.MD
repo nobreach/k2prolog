@@ -49,6 +49,8 @@ This requires evaluation of subexpressions using K's heating & cooling mechanism
 
 ### Result
 
+`X = conf(k([]),state([pair(x,36)]))`
+
 ## Sequencing
 
 As the name says...
