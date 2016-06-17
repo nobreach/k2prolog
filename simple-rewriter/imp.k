@@ -7,14 +7,17 @@
 // syntax (K will generate a parser for this)
 module IMP-SYNTAX
 	// todo: remove [strict] tags and write explicit heating/cooling rules instead
-	// (as done already for variable assignment). 
+	// (as done already for variable assignment).
 
 	// arithmetic expressions
-	syntax AExp  ::= Int 
-		       | "var" "(" Id ")"
+	
+	syntax Var   ::= "var" "(" Id ")"
+
+	syntax AExp  ::= Int | Var
+		       //| "var" "(" Id ")"
                        | "mul" "(" AExp "," AExp ")"            [strict]
 	// statements
-  	syntax Stmt  ::= "assign" "(" Id "," AExp ")"
+  	syntax Stmt  ::= "assign" "(" Var "," AExp ")"
                        | "if" "(" AExp "," Stmt "," Stmt ")"    [strict(1)]
                        | "seq" "(" Stmt "," Stmt ")"              
 
@@ -46,17 +49,17 @@ module IMP
   	rule 	mul(I1,I2) => I1 *Int I2  
 	
 	// assignment (heating)
-	rule	assign(X,E:AExp) => E ~> assign(X,HOLE)	when notBool(isKResult(E))
+	rule	assign(var(X),E:AExp) => E ~> assign(var(X),HOLE)	when notBool(isKResult(E))
 
 	// assignment (cooling)
-	rule	(I:Int ~> assign(X,HOLE)) => assign(X,I)
+	rule	(I:Int ~> assign(var(X),HOLE)) => assign(var(X),I)
 
 	// assignment (existing variable)
-  	rule 	<k> assign(X, I:Int) => . ...</k> 
+  	rule 	<k> assign(var(X), I:Int) => . ...</k> 
 		<state>... X |-> (_ => I) ...</state>
 
 	// assignment (fresh variable)
-  	rule 	<k> assign(X,I:Int) => . ...</k>
+  	rule 	<k> assign(var(X),I:Int) => . ...</k>
 		<state> State:Map => State[X <- I] </state>
 		when notBool(X in keys(State))
 	// sequence

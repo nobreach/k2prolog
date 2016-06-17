@@ -68,7 +68,7 @@ updateEnv([],Elem,[Elem]).
         assign(x,3)
    
    - query: 
-        rewrite(conf(k([assign(x,6)]), state([]) ),X).
+        rewrite(conf(k([assign(var(x),6)]), state([]) ),X).
    
    -result: 
         X = conf(k([]),state([pair(x,6)])) 
@@ -82,18 +82,31 @@ updateEnv([],Elem,[Elem]).
         )
         
    - query: 
-        rewrite(conf(k([seq(assign(x,6),assign(z,2))]),state([])),X).
+        rewrite(conf(k([seq(assign(var(x),6),assign(var(z),2))]),state([])),X).
    
    - result:
          X = conf(k([]),state([pair(z,2),pair(x,6)]))
-         
-   (same as above. notice the sequencing of 2 instructions) */
+    
+   (same as above. notice the sequencing of 2 instructions) 
+
+   - program 3:
+        assign(x,mul(6,6))     
+        
+   - query:
+        rewrite(conf(k([assign(var(x),mul(6,6))]), state([]) ),X). 
+
+   - result:
+        X = conf(k([]),state([pair(x,36)])) 
+        
+   (heating/cooling rules for assignment -- can now eval subexpressions, yeah! )
+*/
+   
 /* ----------------------------------------------------------------------*/
 
 /* variable lookup */
 rule(
   l(conf(
-    k([var(X)|K]),
+    k([id(X)|K]),
     state(E))),
   r(
     conf(
@@ -112,19 +125,37 @@ rule(
       k([V|K]),
       state(E)))) :- V is X * Y.
 
-/* todo: assign / heating */
+/* assign (heating) */
+rule(
+  l(conf(
+    k([assign(var(X),Exp)|K]),
+    state(E))),
+  r(
+    conf(
+      k([Exp,assign(var(X),hole)|K]),
+      state(E)))) :- \+number(Exp).
 
-/* todo: assign / cooling */
+/* assign (cooling) */
+
+rule(
+  l(conf(
+    k([V,assign(var(X),hole)|K]),
+    state(E))),
+  r(
+    conf(
+      k([assign(var(X),V)|K]),
+      state(E)))) :- number(V).
+
 
 /* assign */
 rule(
   l(conf(
-    k([assign(X,V)|K]),
+    k([assign(var(X),V)|K]),
     state(E))),
   r(
     conf(
       k(K),
-      state(E1)))) :- updateEnv(E,pair(X,V),E1).
+      state(E1)))) :- number(V), updateEnv(E,pair(X,V),E1).
 
 /* seq */ 
 rule(
