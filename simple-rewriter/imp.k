@@ -12,7 +12,7 @@ module IMP-SYNTAX
                        | "mul" "(" AExp "," AExp ")"            [strict]
                        | "add" "(" AExp "," AExp ")"            [strict]
 	// statements
-  	syntax Stmt  ::= "assign" "(" Id "," AExp ")"   	[strict(2)]
+  	syntax Stmt  ::= "assign" "(" Id "," AExp ")"
                        | "if" "(" AExp "," Stmt "," Stmt ")"    [strict(1)]
                        | "seq" "(" Stmt "," Stmt ")"              
 
@@ -43,9 +43,17 @@ module IMP
   	rule 	mul(I1,I2) => I1 *Int I2  
 	// addition
   	rule 	add(I1,I2) => I1 +Int I2
+
+	// assignment (heating)
+	rule	assign(X,E:AExp) => E ~> assign(X,HOLE)	when notBool(isKResult(E))
+
+	// assignment (cooling)
+	rule	(I:Int ~> assign(X,HOLE)) => assign(X,I)
+
 	// assignment (existing variable)
   	rule 	<k> assign(X, I:Int) => . ...</k> 
 		<state>... X |-> (_ => I) ...</state>
+
 	// assignment (fresh variable)
   	rule 	<k> assign(X,I:Int) => . ...</k>
 		<state> State:Map => State[X <- I] </state>
