@@ -6,11 +6,13 @@
 
 // syntax (K will generate a parser for this)
 module IMP-SYNTAX
+	// todo: remove [strict] tags and write explicit heating/cooling rules instead
+	// (as done already for variable assignment). 
+
 	// arithmetic expressions
 	syntax AExp  ::= Int 
 		       | "var" "(" Id ")"
                        | "mul" "(" AExp "," AExp ")"            [strict]
-                       | "add" "(" AExp "," AExp ")"            [strict]
 	// statements
   	syntax Stmt  ::= "assign" "(" Id "," AExp ")"
                        | "if" "(" AExp "," Stmt "," Stmt ")"    [strict(1)]
@@ -39,11 +41,10 @@ module IMP
 	// variable lookup
 	rule 	<k> var(X:Id) => I ...</k> 
 		<state>... X |-> I ...</state>
+
 	// multiplication
   	rule 	mul(I1,I2) => I1 *Int I2  
-	// addition
-  	rule 	add(I1,I2) => I1 +Int I2
-
+	
 	// assignment (heating)
 	rule	assign(X,E:AExp) => E ~> assign(X,HOLE)	when notBool(isKResult(E))
 

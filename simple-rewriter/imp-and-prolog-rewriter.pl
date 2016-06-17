@@ -100,6 +100,8 @@ rule(
       k([V|K]),
       state(E)))) :- readEnv(E,X,V).
 
+/* todo: multiplication / heating & cooling */
+
 /* multiplication */
 rule(
   l(conf(
@@ -110,15 +112,9 @@ rule(
       k([V|K]),
       state(E)))) :- V is X * Y.
 
-/* addition */
-rule(
-  l(conf(
-    k([add(X,Y)|K]),
-    state(E))),
-  r(
-    conf(
-      k([V|K]),
-      state(E)))) :- V is X + Y.
+/* todo: assign / heating */
+
+/* todo: assign / cooling */
 
 /* assign */
 rule(
@@ -140,5 +136,6 @@ rule(
       k([Stmt1,Stmt2|K]),
       state(E)))).
 
-/* if (TODO) */
-/* heating/cooling rules (TODO) */
+/* todo: if heating & cooling */
+
+/* todo: if */
