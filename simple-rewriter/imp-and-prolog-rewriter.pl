@@ -98,9 +98,7 @@ rule(
   r(
     conf(
       k([V|K]),
-      state(E)))) :- readEnv(E,X,V).:wq
-I:q!
-I:
+      state(E)))) :- readEnv(E,X,V).
 
 /* multiplication */
 rule(
