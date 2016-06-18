@@ -209,15 +209,12 @@ This is of course assuming we want to start from an empty state (which is almost
 
 What about having `P` in a file which can be loaded? 
 
-# TODO
-## language example
-* add remaining "heating" and "cooling" rules (keep in synch K and prolog!) 
-* add rules for conditional (including heating/cooling)
+# Next
 
 ## K executor
 * separate executor, language definition and program to be executed (see above)
 * make the executor more language agnostic (polish, cleanup, generalise) 
-* implement property K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
+* implement more K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
 
 ## automatic translation of K defs?
 * we don't want to do it manually :) 
