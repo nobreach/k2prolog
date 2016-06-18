@@ -18,7 +18,7 @@ module IMP-SYNTAX
                        | "mul" "(" AExp "," AExp ")"
 	// statements
   	syntax Stmt  ::= "assign" "(" Var "," AExp ")"
-                       | "if" "(" AExp "," Stmt "," Stmt ")"    [strict(1)]
+                       | "if" "(" AExp "," Stmt "," Stmt ")"
                        | "seq" "(" Stmt "," Stmt ")"              
 
 // Note: the [strict] tags cause K to auto generate "heating" and "cooling" rules, 
@@ -74,11 +74,20 @@ module IMP
   	rule 	<k> assign(var(X),I:Int) => . ...</k>
 		<state> State:Map => State[X <- I] </state>
 		when notBool(X in keys(State))
+
 	// sequence
   	rule 	seq(S1:Stmt,S2:Stmt) => S1 ~> S2  [structural]
-	// if (true case i.e arg is not zero, C-like)
+
+	// if (heating)
+	rule 	if(E,Stmt1,Stmt2) => E ~> if(HOLE,Stmt1,Stmt2)		when notBool(isKResult(E))
+
+	// if (cooling)
+	rule	(I:Int ~> if(HOLE,Stmt1,Stmt2)) => if(I,Stmt1,Stmt2)	
+
+	// if (true)
   	rule 	if(N:Int,S,_) => S	when (N =/=Int 0)
-  	// if (false case, i.e. arg is zero)
+
+  	// if (false)
   	rule 	if(0,_,S) => S
 
 endmodule

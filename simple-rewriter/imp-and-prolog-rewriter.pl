@@ -112,7 +112,7 @@ rule(
   r(
     conf(
       k([V|K]),
-      state(E)))) :- V is V1 * V2.
+      state(E)))) :- number(V1), number(V2),  V is V1 * V2.
 
 /* assign (heating) */
 rule(
@@ -155,6 +155,42 @@ rule(
       k([Stmt1,Stmt2|K]),
       state(E)))).
 
-/* todo: if heating & cooling */
+/* if (heating) */
+rule(
+  l(conf(
+    k([if(Exp,Stmt1,Stmt2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([Exp,if(hole,Stmt1,Stmt2)|K]),
+      state(E)))) :- \+number(Exp).
 
-/* todo: if */
+/* if (cooling) */
+rule(
+  l(conf(
+    k([V,if(hole,Stmt1,Stmt2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([if(V,Stmt1,Stmt2)|K]),
+      state(E)))) :- number(V).
+
+/* if (true) */
+rule(
+  l(conf(
+    k([if(V,Stmt,_)|K]),
+    state(E))),
+  r(
+    conf(
+      k([Stmt|K]),
+      state(E)))) :- number(V), V \= 0.
+
+/* if (false) */
+rule(
+  l(conf(
+    k([if(V,_,Stmt)|K]),
+    state(E))),
+  r(
+    conf(
+      k([Stmt|K]),
+      state(E)))) :- number(V), V = 0.
