@@ -86,6 +86,28 @@ As the name says...
 
 ` X = conf(k([]),state([pair(z,2),pair(x,6)]))`
 
+
+
+## Nested arithmetic expressions
+
+Testing heating/cooling rules for multiplication 
+
+### Intended program
+
+`x = 6 * (3 * (2 * 3));`
+
+### AST (the syntax we actually use)
+
+`assign(var(x),mul(6,mul(3,mul(2,3)))`
+
+### Query
+
+`rewrite(conf(k([assign(var(x),mul(6,mul(3,mul(2,3))))]), state([])),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,108)]))`
+
 # Making it nicer
 
 Once we hape a program `P`, we want to actually build the query 
