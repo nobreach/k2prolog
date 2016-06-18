@@ -6,24 +6,20 @@
 
 // syntax (K will generate a parser for this)
 module IMP-SYNTAX
-	// todo: remove [strict] tags and write explicit heating/cooling rules instead
-	// (as done already for variable assignment).
 
 	// arithmetic expressions
-	
 	syntax Var   ::= "var" "(" Id ")"
 
 	syntax AExp  ::= Int 
 		       | Var
                        | "mul" "(" AExp "," AExp ")"
+		       | "add" "(" AExp "," AExp ")"
 	// statements
   	syntax Stmt  ::= "assign" "(" Var "," AExp ")"
                        | "if" "(" AExp "," Stmt "," Stmt ")"
+		       | "while" "(" AExp "," Stmt ")"
                        | "seq" "(" Stmt "," Stmt ")"              
-
-// Note: the [strict] tags cause K to auto generate "heating" and "cooling" rules, 
-// but nothing prevent us to writing them manually. I'll provide a demonstration of that. 
-
+		       | "skip"
 endmodule
 
 // semantics
@@ -59,6 +55,22 @@ module IMP
 
 	// multiplication
   	rule 	mul(I1,I2) => I1 *Int I2  
+
+	// addition (heating LHS)
+	rule	add(E1,E2) => E1 ~> add(HOLE,E2)			when notBool(isKResult(E1))
+
+	// addition (cooling LHS)
+	rule	(I:Int ~> add(HOLE,E2)) => add(I,E2)
+
+	// addition (heating RHS) 
+	rule	add(E1,E2) => E2 ~> add(E1,HOLE)			when notBool(isKResult(E2))
+
+	// addition (cooling RHS) 
+	rule	(I:Int ~> add(E1,HOLE)) => add(E1,I)
+
+	// addition
+  	rule 	add(I1,I2) => I1 +Int I2  
+
 	
 	// assignment (heating)
 	rule	assign(var(X),E:AExp) => E ~> assign(var(X),HOLE)	when notBool(isKResult(E))
@@ -89,5 +101,11 @@ module IMP
 
   	// if (false)
   	rule 	if(0,_,S) => S
+
+	// skip
+	rule	skip => .
+
+	// while
+	rule 	while (E,S) => if(E,seq(S,while(E,S)),skip)
 
 endmodule

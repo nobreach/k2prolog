@@ -54,7 +54,7 @@ updateEnv([],Elem,[Elem]).
 /* variable lookup */
 rule(
   l(conf(
-    k([id(X)|K]),
+    k([var(X)|K]),
     state(E))),
   r(
     conf(
@@ -194,3 +194,23 @@ rule(
     conf(
       k([Stmt|K]),
       state(E)))) :- number(V), V = 0.
+
+/* skip */
+rule(
+  l(conf(
+    k([skip|K]),
+    state(E))),
+  r(
+    conf(
+      k(K),
+      state(E)))).
+
+/* while */
+rule(
+  l(conf(
+    k([while(Exp,Stmt)|K]),
+    state(E))),
+  r(
+    conf(
+      k([if(Exp,seq(Stmt,while(Exp,Stmt)),skip)|K]),
+      state(E)))).
