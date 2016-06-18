@@ -1,4 +1,4 @@
-This is a first attempt in writing down a K definition is Prolog syntax (by trying to preserve the shape of the rules) 
+This is a first attempt in writing down a K definition in Prolog syntax (by trying to preserve the shape of the rules) 
 and executing it in prolog. Execution in prolog is done by a couple of extra predicates (the executor).
 
 # K definition of the IMP language
