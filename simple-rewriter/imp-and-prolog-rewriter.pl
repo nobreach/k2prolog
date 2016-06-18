@@ -23,23 +23,23 @@ rewrite(Cin,Cout) :-
    those K builltin operations to Java lists/sets etc., Maude backend maps them to Maude
    machinery etc. */
 
-/* readEnv(in:Env,in:Var,out:Value): reads the value of a var from the environment */
-readEnv([],_,bot).
-readEnv([pair(X,V)|_],X,V).
-readEnv([_|Env],X,V) :- readEnv(Env,X,V).
+/* mapContainsKey(in:Map,in:Key) : succeeds if pair(K,_) is contained in the input map */
+mapContainsKey([pair(K,_)|_],K).
+mapContainsKey([_|T],K) :- mapContainsKey(T,K).
 
-/* updateEnv(-Env,-Pair,+Env): updates an environment */
+/* mapGetValueFromKey(in:Env,in:Var,out:Value): reads the value of a var from the environment */
+mapGetValueFromKey([pair(K,V)|_],K,V).
+mapGetValueFromKey([_|T],K,V) :- mapGetValueFromKey(T,K,V).
 
-updateEnv(E,Pair,[Pair|E]). /* dummy */
+/* mapInsertNewKeyValuePair(in:Map,in:KeyValuePair,out:Map): insert a new key-value pair into a map */
+mapInsertNewKeyValuePair(Map,KeyValuePair,[KeyValuePair|Map]). 
 
-/* fixme! 
-updateEnv([pair(X,_) | T],pair(X,V),[pair(X,V) | T]).
-updateEnv([AnotherPair | T],Pair,[AnotherPair | Env]) :- 
-        AnotherPair \= Pair, 
-        updateEnv(T,Pair,Env).
-updateEnv([],Elem,[Elem]).
-*/
+/* mapUpdateValueOfKey(in:Map,in:Key,in:Value,out:Map): updates the value of a key-value pair */
+mapUpdateValueOfKey([pair(X,_)|T],X,V,[pair(X,V)|T]).
+mapUpdateValueOfKey([_|T],X,V,UpdatedMap) :- mapUpdateValueOfKey(T,X,V,UpdatedMap).
 
+/* todo: what else is needed? sets, bags etc... */
+/* todo: use SICStus libraries? */
 
 /* -------------------- The IMP K language definition, in Prolog -------------------- */
 /* Here is a manual translation of the K definition of IMP into prolog syntax. 
@@ -59,7 +59,7 @@ rule(
   r(
     conf(
       k([V|K]),
-      state(E)))) :- readEnv(E,X,V).
+      state(E)))) :- mapGetValueFromKey(E,X,V).
 
 /* multiplication (heating LHS) */
 rule(
@@ -134,8 +134,7 @@ rule(
       k([assign(var(X),V)|K]),
       state(E)))) :- number(V).
 
-
-/* assign */
+/* assign (existing variable) */
 rule(
   l(conf(
     k([assign(var(X),V)|K]),
@@ -143,7 +142,17 @@ rule(
   r(
     conf(
       k(K),
-      state(E1)))) :- number(V), updateEnv(E,pair(X,V),E1).
+      state(E1)))) :- number(V), mapContainsKey(E,X), mapUpdateValueOfKey(E,X,V,E1).
+
+/* assign (new variable) */
+rule(
+  l(conf(
+    k([assign(var(X),V)|K]),
+    state(E))),
+  r(
+    conf(
+      k(K),
+      state(E1)))) :- number(V), \+mapContainsKey(E,X), mapInsertNewKeyValuePair(E,pair(X,V),E1).
 
 /* seq */ 
 rule(
