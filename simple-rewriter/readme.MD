@@ -124,10 +124,26 @@ Since we only have numbers in IMP, conditional here is like in C, i.e. "0" is fa
 
 ### Result
 
-`X = conf(k([]),state([pair(x,1)])) ? `
+`X = conf(k([]),state([pair(x,1)]))`
+
+## Variable lookup
 
 
+### Intended program
 
+`x := 5; y := x;`
+
+### AST (the syntax we actually use)
+
+`seq(assign(var(x),5),assign(var(y),var(x)))`
+
+### Query
+
+`rewrite(conf(k([seq(assign(var(x),5),assign(var(y),var(x)))]), state([])),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(y,5),pair(x,5)]))`
 
 
 # Making it nicer
