@@ -86,8 +86,6 @@ As the name says...
 
 ` X = conf(k([]),state([pair(z,2),pair(x,6)]))`
 
-
-
 ## Nested arithmetic expressions
 
 Testing heating/cooling rules for multiplication 
@@ -107,6 +105,30 @@ Testing heating/cooling rules for multiplication
 ### Result
 
 `X = conf(k([]),state([pair(x,108)]))`
+
+## Conditionals ("if")
+
+Since we only have numbers in IMP, conditional here is like in C, i.e. "0" is false and "not 0" is true.  
+
+### Intended program
+
+`if (3 * 2) then {x := 1;} else {x = 8;}`
+
+### AST (the syntax we actually use)
+
+`if(mul(3,2)   ,   assign(var(x),1)  ,   assign(var(x),8)`
+
+### Query
+
+`rewrite(conf(k([if(mul(3,2),assign(var(x),1),assign(var(x),8))]), state([])),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,1)])) ? `
+
+
+
+
 
 # Making it nicer
 
