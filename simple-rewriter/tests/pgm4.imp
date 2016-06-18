@@ -1,0 +1,9 @@
+seq(  
+  assign(var(x),5),
+  seq(
+    assign(var(y),0),  
+    while(
+      var(x),
+      seq(
+        assign(var(x),add(var(x),-1)),
+        assign(var(y),add(var(y),+1))))))

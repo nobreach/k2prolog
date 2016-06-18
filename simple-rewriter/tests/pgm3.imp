@@ -1,0 +1,8 @@
+// x = 5; 
+// while (x) {
+//   x = x - 1;
+// }
+
+seq(
+  assign(var(x),5),
+  while(var(x),assign(var(x),add(var(x),-1))))

@@ -71,8 +71,7 @@ rule(
       k([E1,mul(hole,E2)|K]),
       state(E)))) :- \+number(E1).
 
-/* todo: multiplication (cooling LHS) */
-
+/* multiplication (cooling LHS) */
 rule(
   l(conf(
     k([V,mul(hole,E2)|K]),
@@ -82,8 +81,7 @@ rule(
       k([mul(V,E2)|K]),
       state(E)))) :- number(V).
 
-/* todo: multiplication (heating RHS) */
-
+/* multiplication (heating RHS) */
 rule(
   l(conf(
     k([mul(E1,E2)|K]),
@@ -93,8 +91,7 @@ rule(
       k([E2,mul(E1,hole)|K]),
       state(E)))) :- \+number(E2).
                                      
-/* todo: multiplication (cooling RHS) */
-
+/* multiplication (cooling RHS) */
 rule(
   l(conf(
     k([V,mul(E1,hole)|K]),
@@ -113,6 +110,67 @@ rule(
     conf(
       k([V|K]),
       state(E)))) :- number(V1), number(V2),  V is V1 * V2.
+
+
+
+
+/* addition (heating LHS) */
+rule(
+  l(conf(
+    k([add(E1,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([E1,add(hole,E2)|K]),
+      state(E)))) :- \+number(E1).
+
+/* addition (cooling LHS) */
+rule(
+  l(conf(
+    k([V,add(hole,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([add(V,E2)|K]),
+      state(E)))) :- number(V).
+
+/* addition (heating RHS) */
+rule(
+  l(conf(
+    k([add(E1,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([E2,add(E1,hole)|K]),
+      state(E)))) :- \+number(E2).
+                                     
+/* addition (cooling RHS) */
+rule(
+  l(conf(
+    k([V,add(E1,hole)|K]),
+    state(E))),
+  r(
+    conf(
+      k([add(E1,V)|K]),
+      state(E)))) :- number(V).
+
+/* addition */
+rule(
+  l(conf(
+    k([add(V1,V2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([V|K]),
+      state(E)))) :- number(V1), number(V2),  V is V1 + V2.
+
+
+
+
+
+
+
+
 
 /* assign (heating) */
 rule(
@@ -223,3 +281,16 @@ rule(
     conf(
       k([if(Exp,seq(Stmt,while(Exp,Stmt)),skip)|K]),
       state(E)))).
+
+
+/*
+   
+seq(  
+  assign(var(x),5),  
+  while(
+    var(x),
+    assign(var(x),add(var(x),-1))))
+   
+    rewrite(conf(k([  seq(  assign(var(x),5)  ,  while(var(x),assign(var(x),add(var(x),-1)))          )  ]), state([]) ),X).
+    
+*/

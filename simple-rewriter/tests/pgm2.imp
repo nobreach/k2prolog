@@ -1,0 +1,4 @@
+if(
+	mul(3,4),
+	assign(var(x),1),
+	assign(var(x),2))
