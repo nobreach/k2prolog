@@ -61,17 +61,58 @@ rule(
       k([V|K]),
       state(E)))) :- readEnv(E,X,V).
 
-/* todo: multiplication / heating & cooling */
+/* multiplication (heating LHS) */
+rule(
+  l(conf(
+    k([mul(E1,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([E1,mul(hole,E2)|K]),
+      state(E)))) :- \+number(E1).
+
+/* todo: multiplication (cooling LHS) */
+
+rule(
+  l(conf(
+    k([V,mul(hole,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([mul(V,E2)|K]),
+      state(E)))) :- number(V).
+
+/* todo: multiplication (heating RHS) */
+
+rule(
+  l(conf(
+    k([mul(E1,E2)|K]),
+    state(E))),
+  r(
+    conf(
+      k([E2,mul(E1,hole)|K]),
+      state(E)))) :- \+number(E2).
+                                     
+/* todo: multiplication (cooling RHS) */
+
+rule(
+  l(conf(
+    k([V,mul(E1,hole)|K]),
+    state(E))),
+  r(
+    conf(
+      k([mul(E1,V)|K]),
+      state(E)))) :- number(V).
 
 /* multiplication */
 rule(
   l(conf(
-    k([mul(X,Y)|K]),
+    k([mul(V1,V2)|K]),
     state(E))),
   r(
     conf(
       k([V|K]),
-      state(E)))) :- V is X * Y.
+      state(E)))) :- V is V1 * V2.
 
 /* assign (heating) */
 rule(

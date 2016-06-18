@@ -13,9 +13,9 @@ module IMP-SYNTAX
 	
 	syntax Var   ::= "var" "(" Id ")"
 
-	syntax AExp  ::= Int | Var
-		       //| "var" "(" Id ")"
-                       | "mul" "(" AExp "," AExp ")"            [strict]
+	syntax AExp  ::= Int 
+		       | Var
+                       | "mul" "(" AExp "," AExp ")"
 	// statements
   	syntax Stmt  ::= "assign" "(" Var "," AExp ")"
                        | "if" "(" AExp "," Stmt "," Stmt ")"    [strict(1)]
@@ -44,6 +44,18 @@ module IMP
 	// variable lookup
 	rule 	<k> var(X:Id) => I ...</k> 
 		<state>... X |-> I ...</state>
+
+	// multiplication (heating LHS)
+	rule	mul(E1,E2) => E1 ~> mul(HOLE,E2)			when notBool(isKResult(E1))
+
+	// multiplication (cooling LHS)
+	rule	(I:Int ~> mul(HOLE,E2)) => mul(I,E2)
+
+	// multiplication (heating RHS) 
+	rule	mul(E1,E2) => E2 ~> mul(E1,HOLE)			when notBool(isKResult(E2))
+
+	// multiplication (cooling RHS) 
+	rule	(I:Int ~> mul(E1,HOLE)) => mul(E1,I)
 
 	// multiplication
   	rule 	mul(I1,I2) => I1 *Int I2  
