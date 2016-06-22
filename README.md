@@ -11,6 +11,8 @@
 * specialising the "K executor written in Prolog" w.r.t. a specific the K definition will give us an equivalent semantics/interpreter written in Prolog. 
 * Specialising this w.r.t. a program will produce an equivalent version of the program written in Prolog. 
 
+Note, however, that the "Prolog backend" may be integrated in the K tool as well (without all of the partial evaluation stuff). 
+
 Here's a (probably out-of date diagram):
 
 ![k2prolog](k2prolog.png)
