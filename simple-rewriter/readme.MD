@@ -68,16 +68,18 @@ As the name says...
 
 ### Intended program
 
-`x := 3;
- z := 2;`
+```
+x := 3;
+z := 2;
+```
 
 ### AST (the syntax we actually use)
 
-` seq(
-          assign(x,3),
-          assign(z,2)
-        )`
-
+```
+seq(
+ assign(x,3),
+ assign(z,2))
+```
 ### Query
 
 `rewrite(conf(k([seq(assign(var(x),6),assign(var(z),2))]),state([])),X).`
@@ -112,11 +114,21 @@ Since we only have numbers in IMP, conditional here is like in C, i.e. "0" is fa
 
 ### Intended program
 
-`if (3 * 2) then {x := 1;} else {x = 8;}`
+```
+if (3 * 2) then 
+  x := 1; 
+else 
+  x = 8;
+```
 
 ### AST (the syntax we actually use)
 
-`if(mul(3,2)   ,   assign(var(x),1)  ,   assign(var(x),8)`
+```
+if(
+  mul(3,2),   
+  assign(var(x),1),   
+  assign(var(x),8))
+```
 
 ### Query
 
@@ -131,11 +143,21 @@ Since we only have numbers in IMP, conditional here is like in C, i.e. "0" is fa
 
 ### Intended program
 
-`x := 5; y := x;`
+```
+x := 5; 
+y := x;
+```
 
 ### AST (the syntax we actually use)
 
-`seq(assign(var(x),5),assign(var(y),var(x)))`
+```
+seq(
+  assign(
+    var(x),5),
+    assign(
+      var(y),
+      var(x)))
+```
 
 ### Query
 
@@ -144,6 +166,37 @@ Since we only have numbers in IMP, conditional here is like in C, i.e. "0" is fa
 ### Result
 
 `X = conf(k([]),state([pair(y,5),pair(x,5)]))`
+
+## While loop
+
+Last example for now.
+
+### Intended program
+```
+x := 5; 
+while (x) do 
+    x := x - 1;
+```
+
+### AST (the syntax we actually use)
+
+```
+seq(  
+  assign(var(x),5),  
+  while(
+    var(x),
+    assign(var(x),add(var(x),-1))))
+```
+
+### Query
+
+`rewrite(conf(k([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))]),state([]) ),X).`
+
+### Result
+
+`X = conf(k([]),state([pair(x,0)]))`
+
+
 
 
 # Making it nicer
@@ -156,15 +209,12 @@ This is of course assuming we want to start from an empty state (which is almost
 
 What about having `P` in a file which can be loaded? 
 
-# TODO
-## language example
-* add remaining "heating" and "cooling" rules (keep in synch K and prolog!) 
-* add rules for conditional (including heating/cooling)
+# Next
 
 ## K executor
 * separate executor, language definition and program to be executed (see above)
 * make the executor more language agnostic (polish, cleanup, generalise) 
-* implement property K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
+* implement more K builtin data types (maps, lists, sets etc.). Use SICStus libraries?!
 
 ## automatic translation of K defs?
 * we don't want to do it manually :) 
