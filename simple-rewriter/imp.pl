@@ -17,6 +17,15 @@
 */
 
 
+/* -------------------------- Example runs  ---------------------------- */
+/* Specialise the following goals! 
+/* ----------------------------------------------------------------------*/
+
+test1(X) :- rewrite(conf(k([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))]), state([])),X).
+test2(X) :- rewrite(conf(k([assign(var(x),5)]), state([])),X).
+test3(X) :- rewrite(conf(k([skip]), state([])),X).
+/* ... add more ...  */
+
 /* -------------------- The rewriter ("K executor") -------------------- */
 /* This is supposed to be language independent (but it's probably not yet
  * for this simple example. The goal is to make it so! */
@@ -300,14 +309,3 @@ rule(
       state(E)))).
 
 
-/*
-   
-seq(  
-  assign(var(x),5),  
-  while(
-    var(x),
-    assign(var(x),add(var(x),-1))))
-   
-    rewrite(conf(k([  seq(  assign(var(x),5)  ,  while(var(x),assign(var(x),add(var(x),-1)))          )  ]), state([]) ),X).
-    
-*/

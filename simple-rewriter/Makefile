@@ -1,25 +1,14 @@
-#BTABIN=/Volumes/Data/projects/logen-bta/bin/bta
-
 # We assume that logen and bta are in PATH already. Otherwise set them explicitly as above.
 LOGEN=logen
+#BTABIN=/Volumes/Data/projects/logen-bta/bin/bta
 BTABIN=bta
 BTA=${BTABIN} -scc
 
-test1: imp-and-prolog-rewriter_logen.pl
-	sicstus -l imp-and-prolog-rewriter_logen.pl --goal "rewrite(conf(k([assign(var(x),6)]), state([]) ),X),halt."
 
-imp-and-prolog-rewriter_logen.pl: imp-and-prolog-rewriter.pl.ann imp-and-prolog-rewriter.pl
-	${LOGEN} imp-and-prolog-rewriter.pl "rewrite(conf(k([assign(var(x),6)]), state([])),X)." --spec_file imp-and-prolog-rewriter_logen.pl -vv
 
-imp-and-prolog-rewriter.pl.ann: imp-and-prolog-rewriter.pl Makefile
-	${BTA} -ng imp-and-prolog-rewriter.pl -o imp-and-prolog-rewriter.pl.ann --entry " rewrite(conf(k([assign(var(x),6)]), state([])),X)."  --lib "assoc" --lib "logarr"
-
-#
-#ics_gx: php_001_gx_sics.pl
-#	echo "Running hand-adapted generating extension in SICStus"
-#	sicstus -l php_001_gx_sics.pl --goal "test(X)."
-
+# Clean
 clean:
+	find . -name "*.ann"  -exec rm {} \;
 	find . -name "*.ast"  -exec rm {} \;
 	find . -name "*.itf"  -exec rm {} \;
 	find . -name "*.po"  -exec rm {} \;
@@ -27,5 +16,19 @@ clean:
 	find . -name "*.orig"  -exec rm {} \;
 	find . -name "*.gx"  -exec rm {} \;
 	find . -name "*.cpx"  -exec rm {} \;
-	rm imp-and-prolog-rewriter_logen.pl
+	rm imp_spec.pl
+
+
+
+# Tests (use goals test1, test2 or test3)
+
+test: imp_spec.pl
+	sicstus -l imp_spec.pl --goal "test1__0(X),print(X),halt."
+imp_spec.pl: imp.pl.ann
+	echo "Running LOGEN: "
+	${LOGEN} imp.pl "test1(X)" -ap --spec_file imp_spec.pl -v
+imp.pl.ann: imp.pl
+	echo "Running BTA: "
+	${BTA} imp.pl -o imp.pl.ann --entry "test1(d)." --lib "assoc"
+
 
