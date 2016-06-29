@@ -4,8 +4,6 @@ LOGEN=logen
 BTABIN=bta
 BTA=${BTABIN} -scc
 
-
-
 # Clean
 clean:
 	find . -name "*.ann"  -exec rm {} \;
@@ -18,17 +16,13 @@ clean:
 	find . -name "*.cpx"  -exec rm {} \;
 	rm imp_spec.pl
 
-
-
 # Tests (use goals test1, test2 or test3)
 
 test: imp_spec.pl
-	sicstus -l imp_spec.pl --goal "test1__0(X),print(X),halt."
+	sicstus -l imp_spec.pl --goal "test3__0(X),print(X),halt."
 imp_spec.pl: imp.pl.ann
 	echo "Running LOGEN: "
-	${LOGEN} imp.pl "test1(X)" -ap --spec_file imp_spec.pl -v
+	${LOGEN} imp.pl "test3(X)" -ap --spec_file imp_spec.pl -v
 imp.pl.ann: imp.pl
 	echo "Running BTA: "
-	${BTA} imp.pl -o imp.pl.ann --entry "test1(d)." --lib "assoc"
-
-
+	${BTA} imp.pl -o imp.pl.ann --entry "test3(d)." --lib "assoc"

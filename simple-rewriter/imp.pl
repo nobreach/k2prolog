@@ -21,9 +21,26 @@
 /* Specialise the following goals! 
 /* ----------------------------------------------------------------------*/
 
+/*
 test1(X) :- rewrite(conf(k([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))]), state([])),X).
 test2(X) :- rewrite(conf(k([assign(var(x),5)]), state([])),X).
-test3(X) :- rewrite(conf(k([skip]), state([])),X).
+*/
+
+test1(Y) :- 
+	X = conf(k([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))]), state([])),
+	rewrite(X,Y).
+
+test2(Y) :- 
+	X = conf(k([assign(var(x),5)]), state([])),
+	rewrite(X,Y).
+
+/* This is the only one that works for now! Just replace 'rewrite(dynamic,dynamic)' with 'dynamic(static,dynamic)' in
+    imp.pl.ann, once generated. Then run 'make test' again */
+
+test3(Y) :- 
+	X = conf(k([skip]),state([])),
+	rewrite(X,Y).
+
 /* ... add more ...  */
 
 /* -------------------- The rewriter ("K executor") -------------------- */
