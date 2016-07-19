@@ -7,15 +7,16 @@ BTA=${BTABIN} -scc
 BTAOPTS=-ng -nl
 
 # Tests (use goals test1, test2 or test3)
-GOAL=test2
-test_bti: imp_bti_spec.pl Makefile
+GOAL=test1
+FILE=imp_bti
+test_bti: $(FILE)_spec.pl Makefile
 	sicstus -l imp_bti_spec.pl --goal "$(GOAL)__0(X),print(X),nl,halt."
-imp_bti_spec.pl: imp_bti.pl.ann Makefile
+imp_bti_spec.pl: $(FILE).pl.ann Makefile
 	echo "Running LOGEN: "
-	${LOGEN} imp_bti.pl "$(GOAL)(X)" -ap --spec_file imp_bti_spec.pl -v -w
-imp_bti.pl.ann: imp_bti.pl Makefile
+	${LOGEN} $(FILE).pl "$(GOAL)(X)" -ap --spec_file imp_bti_spec.pl -v -w --version
+$(FILE).pl.ann2: $(FILE).pl Makefile
 	echo "Running BTA for $(GOAL): "
-	${BTA} imp_bti.pl -o imp_bti.pl.ann --entry "$(GOAL)(d)." --lib "assoc"
+	${BTA} $(FILE).pl -o $(FILE).pl.ann2 --entry "$(GOAL)(d)." --lib "assoc"
 
 test: imp_spec.pl Makefile
 	sicstus -l imp_spec.pl --goal "$(GOAL)__0(X),print(X),nl,halt."

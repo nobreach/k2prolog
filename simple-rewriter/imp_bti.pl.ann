@@ -72,7 +72,8 @@ logen(rule,rule(l(conf(k('.'(skip,A)),state(B))),r(conf(k(A),state(B))))).
 logen(rule,rule(l(conf(k('.'(while(A,B),C)),state(D))),r(conf(k('.'(if(A,seq(B,while(A,B)),skip),C)),state(D))))).
 logen(rewrite,rewrite([],A,A)).
 logen(rewrite,rewrite('.'(A,B),C,D)) :- 
-   logen(unfold,rule(l(conf(k('.'(A,B)),state(C))),r(conf(k(E),state(F))))), logen(memo,rewrite(E,F,D)).
+   logen(unfold,rule(l(conf(k('.'(A,B)),state(C))),r(conf(k(E),state(F))))),
+   logen(memo,rewrite(E,F,D)).
 
 logen(test1,test1(A)) :- 
    logen(unfold,rewrite([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))],[],Y)).
