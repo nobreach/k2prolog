@@ -16,7 +16,7 @@
     along with k2Prolog.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-/* This is a binding-time-improved version of imp.pl */
+/* This is a binding-time-improved version of imp.pl, along with tagging values using val/1 */
 
 /* -------------------------- Example runs  ---------------------------- */
 /* Specialise the following goals! 
@@ -28,10 +28,10 @@ test2(X) :- rewrite(conf(k([assign(var(x),5)]), state([])),X).
 */
 
 test1(Y) :- 
-	rewrite([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))],[],Y).
+	rewrite([seq(assign(var(x),val(5)),while(var(x),assign(var(x),add(var(x),val(-1)))))],[],Y).
 
 test2(Y) :- 
-	rewrite([assign(var(x),5)],[],Y).
+	rewrite([assign(var(x),val(5))],[],Y).
 
 /* This is the only one that works for now! Just replace 'rewrite(dynamic,dynamic)' with 'dynamic(static,dynamic)' in
     imp.pl.ann, once generated. Then run 'make test' again */
@@ -52,7 +52,7 @@ test3(Y) :-
 
         
 rewrite([],ResState,ResState).
-rewrite([KA|KB],InState,ResState) :- print(k(KA)),nl,print(InState),nl,
+rewrite([KA|KB],InState,ResState) :- %print(k(KA)),nl,print(InState),nl,
     rule(l(conf(k([KA|KB]),state(InState))),
          r(conf(k(KC),state(State)))), 
     rewrite(KC,State,ResState).
@@ -95,6 +95,10 @@ mapUpdateValueOfKey([_|T],X,V,UpdatedMap) :- mapUpdateValueOfKey(T,X,V,UpdatedMa
    
 /* ----------------------------------------------------------------------*/
 
+get_value(val(V),V).
+is_value(val(_)).
+not_value(V) :- V \= val(_).
+
 /* variable lookup */
 rule(
   l(conf(
@@ -102,7 +106,7 @@ rule(
     state(E))),
   r(
     conf(
-      k([V|K]),
+      k([val(V)|K]),
       state(E)))) :- mapGetValueFromKey(E,X,V).
 
 /* multiplication (heating LHS) */
@@ -113,7 +117,7 @@ rule(
   r(
     conf(
       k([E1,mul(hole,E2)|K]),
-      state(E)))) :- \+number(E1).
+      state(E)))) :- not_value(E1).
 
 /* multiplication (cooling LHS) */
 rule(
@@ -123,7 +127,7 @@ rule(
   r(
     conf(
       k([mul(V,E2)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* multiplication (heating RHS) */
 rule(
@@ -133,7 +137,7 @@ rule(
   r(
     conf(
       k([E2,mul(E1,hole)|K]),
-      state(E)))) :- \+number(E2).
+      state(E)))) :- not_value(E2).
                                      
 /* multiplication (cooling RHS) */
 rule(
@@ -143,7 +147,7 @@ rule(
   r(
     conf(
       k([mul(E1,V)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* multiplication */
 rule(
@@ -152,8 +156,8 @@ rule(
     state(E))),
   r(
     conf(
-      k([V|K]),
-      state(E)))) :- number(V1), number(V2),  V is V1 * V2.
+      k([val(V)|K]),
+      state(E)))) :- get_value(V1,Val1), get_value(V2,Val2),  V is Val1 * Val2.
 
 
 
@@ -166,7 +170,7 @@ rule(
   r(
     conf(
       k([E1,add(hole,E2)|K]),
-      state(E)))) :- \+number(E1).
+      state(E)))) :- not_value(E1).
 
 /* addition (cooling LHS) */
 rule(
@@ -176,7 +180,7 @@ rule(
   r(
     conf(
       k([add(V,E2)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* addition (heating RHS) */
 rule(
@@ -186,7 +190,7 @@ rule(
   r(
     conf(
       k([E2,add(E1,hole)|K]),
-      state(E)))) :- \+number(E2).
+      state(E)))) :- not_value(E2).
                                      
 /* addition (cooling RHS) */
 rule(
@@ -196,7 +200,7 @@ rule(
   r(
     conf(
       k([add(E1,V)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* addition */
 rule(
@@ -205,8 +209,8 @@ rule(
     state(E))),
   r(
     conf(
-      k([V|K]),
-      state(E)))) :- number(V1), number(V2),  V is V1 + V2.
+      k([val(V)|K]),
+      state(E)))) :- get_value(V1,Val1), get_value(V2,Val2),  V is Val1 + Val2.
 
 
 
@@ -224,7 +228,7 @@ rule(
   r(
     conf(
       k([Exp,assign(var(X),hole)|K]),
-      state(E)))) :- \+number(Exp).
+      state(E)))) :- not_value(Exp).
 
 /* assign (cooling) */
 rule(
@@ -234,7 +238,7 @@ rule(
   r(
     conf(
       k([assign(var(X),V)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* assign (existing variable) */
 rule(
@@ -244,7 +248,7 @@ rule(
   r(
     conf(
       k(K),
-      state(E1)))) :- number(V), mapContainsKey(E,X), mapUpdateValueOfKey(E,X,V,E1).
+      state(E1)))) :- get_value(V,Val), mapContainsKey(E,X), mapUpdateValueOfKey(E,X,Val,E1).
 
 /* assign (new variable) */
 rule(
@@ -254,7 +258,7 @@ rule(
   r(
     conf(
       k(K),
-      state(E1)))) :- number(V), \+mapContainsKey(E,X), mapInsertNewKeyValuePair(E,pair(X,V),E1).
+      state(E1)))) :- get_value(V,Val), \+mapContainsKey(E,X), mapInsertNewKeyValuePair(E,pair(X,Val),E1).
 
 /* seq */ 
 rule(
@@ -274,7 +278,7 @@ rule(
   r(
     conf(
       k([Exp,if(hole,Stmt1,Stmt2)|K]),
-      state(E)))) :- \+number(Exp).
+      state(E)))) :- not_value(Exp).
 
 /* if (cooling) */
 rule(
@@ -284,7 +288,7 @@ rule(
   r(
     conf(
       k([if(V,Stmt1,Stmt2)|K]),
-      state(E)))) :- number(V).
+      state(E)))) :- is_value(V).
 
 /* if (true) */
 rule(
@@ -294,7 +298,7 @@ rule(
   r(
     conf(
       k([Stmt|K]),
-      state(E)))) :- number(V), V \= 0.
+      state(E)))) :- get_value(V,Val), Val \= 0.
 
 /* if (false) */
 rule(
@@ -304,7 +308,7 @@ rule(
   r(
     conf(
       k([Stmt|K]),
-      state(E)))) :- number(V), V = 0.
+      state(E)))) :- get_value(V,Val), Val = 0.
 
 /* skip */
 rule(
