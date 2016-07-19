@@ -6,8 +6,8 @@ BTA=${BTABIN} -scc
 # you can use the following options to disable local/global termination checking:
 BTAOPTS=-ng -nl
 
-# Tests (use goals test1, test2 or test3)
-GOAL=test1
+# Tests (use goals test1, test2 or test3) ; Note test1 does not work yet
+GOAL=test2
 FILE=imp_bti
 test_bti: $(FILE)_spec.pl Makefile
 	sicstus -l imp_bti_spec.pl --goal "$(GOAL)__0(X),print(X),nl,halt."
