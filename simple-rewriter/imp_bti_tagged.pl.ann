@@ -27,18 +27,18 @@
         % assign(var(x),5)
 
 logen(not_value,not_value(A)) :- 
-   logen(rescall,\=(A,val(B))).
+   logen(call,\=(A,val(B))).
 logen(is_value,is_value(val(A))).
 logen(mapUpdateValueOfKey,mapUpdateValueOfKey('.'(pair(A,B),C),A,D,'.'(pair(A,D),C))).
-logen(mapUpdateValueOfKey,mapUpdateValueOfKey('.'(A,B),C,D,E)) :- 
-   logen(unfold,mapUpdateValueOfKey(B,C,D,E)).
+logen(mapUpdateValueOfKey,mapUpdateValueOfKey('.'(pair(A,B),C),D,E,F)) :- 
+   logen(call,\=(D,A)), logen(unfold,mapUpdateValueOfKey(C,D,E,F)).
 logen(mapGetValueFromKey,mapGetValueFromKey('.'(pair(A,B),C),A,B)).
 logen(mapGetValueFromKey,mapGetValueFromKey('.'(A,B),C,D)) :- 
    logen(unfold,mapGetValueFromKey(B,C,D)).
 logen(mapInsertNewKeyValuePair,mapInsertNewKeyValuePair(A,B,'.'(B,A))).
 logen(mapContainsKey,mapContainsKey('.'(pair(A,B),C),A)).
 logen(mapContainsKey,mapContainsKey('.'(A,B),C)) :- 
-   logen(memo,mapContainsKey(B,C)).
+   logen(unfold,mapContainsKey(B,C)).
 logen(rule,rule(l(conf(k('.'(var(A),B)),state(C))),r(conf(k('.'(val(D),B)),state(C))))) :- 
    logen(unfold,mapGetValueFromKey(C,A,D)).
 logen(rule,rule(l(conf(k('.'(mul(A,B),C)),state(D))),r(conf(k('.'(A,'.'(mul(hole,B),C))),state(D))))) :- 
@@ -66,9 +66,9 @@ logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k('.'(B,'.'(
 logen(rule,rule(l(conf(k('.'(A,'.'(assign(var(B),hole),C))),state(D))),r(conf(k('.'(assign(var(B),A),C)),state(D))))) :- 
    logen(unfold,is_value(A)).
 logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k(C),state(E))))) :- 
-   logen(unfold,get_value(B,F)), logen(memo,mapContainsKey(D,A)), logen(unfold,mapUpdateValueOfKey(D,A,F,E)).
+   logen(unfold,get_value(B,F)), logen(unfold,mapContainsKey(D,A)), logen(unfold,mapUpdateValueOfKey(D,A,F,E)).
 logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k(C),state(E))))) :- 
-   logen(unfold,get_value(B,F)), resnot( (logen(memo,mapContainsKey(D,A))) ), logen(unfold,mapInsertNewKeyValuePair(D,pair(A,F),E)).
+   logen(unfold,get_value(B,F)), not( (logen(unfold,mapContainsKey(D,A))) ), logen(unfold,mapInsertNewKeyValuePair(D,pair(A,F),E)).
 logen(rule,rule(l(conf(k('.'(seq(A,B),C)),state(D))),r(conf(k('.'(A,'.'(B,C))),state(D))))).
 logen(rule,rule(l(conf(k('.'(if(A,B,C),D)),state(E))),r(conf(k('.'(A,'.'(if(hole,B,C),D))),state(E))))) :- 
    logen(unfold,not_value(A)).

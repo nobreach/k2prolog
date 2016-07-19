@@ -80,7 +80,7 @@ mapInsertNewKeyValuePair(Map,KeyValuePair,[KeyValuePair|Map]).
 
 /* mapUpdateValueOfKey(in:Map,in:Key,in:Value,out:Map): updates the value of a key-value pair */
 mapUpdateValueOfKey([pair(X,_)|T],X,V,[pair(X,V)|T]).
-mapUpdateValueOfKey([_|T],X,V,UpdatedMap) :- mapUpdateValueOfKey(T,X,V,UpdatedMap).
+mapUpdateValueOfKey([pair(O,_)|T],X,V,UpdatedMap) :- X \= O, mapUpdateValueOfKey(T,X,V,UpdatedMap).
 
 /* todo: what else is needed? sets, bags etc... */
 /* todo: use SICStus libraries? */
