@@ -1,0 +1,86 @@
+
+ :- use_module(library(assoc)).
+
+ :- filter test1(dynamic).
+ :- filter test2(dynamic).
+ :- filter test3(dynamic).
+ :- filter rewrite(type(list(type(kexpr))),type(map),dynamic).
+ :- filter mapGetValueFromKey(type(map),atom,dynamic).
+ :- filter mapContainsKey(type(map),atom).
+ :- filter mapUpdateValueOfKey(type(map),atom,dynamic,type(map)).
+
+:- type map ---> type(list(struct(pair,[atom,dynamic]))).
+:- type
+        kexpr ---> (number ;
+          struct(hole,[]) ;
+          struct(skip,[]) ;
+          struct(assign,[static,(type kexpr)])  ;
+          struct(add,[(type kexpr),(type kexpr)])  ;
+          struct(mul,[(type kexpr),(type kexpr)])  ;
+          struct(seq,[(type kexpr),(type kexpr)])  ;
+          struct(while,[(type kexpr),(type kexpr)])  ;
+          struct(if,[(type kexpr),(type kexpr),(type kexpr)])  ;
+          struct(var,[atom])).
+        % assign(var(x),5)
+
+logen(mapGetValueFromKey,mapGetValueFromKey('.'(pair(A,B),C),A,B)).
+logen(mapGetValueFromKey,mapGetValueFromKey('.'(A,B),C,D)) :- 
+   logen(unfold,mapGetValueFromKey(B,C,D)).
+logen(mapContainsKey,mapContainsKey('.'(pair(A,B),C),A)).
+logen(mapContainsKey,mapContainsKey('.'(A,B),C)) :- 
+   logen(memo,mapContainsKey(B,C)).
+logen(rule,rule(l(conf(k('.'(var(A),B)),state(C))),r(conf(k('.'(D,B)),state(C))))) :- 
+   logen(unfold,mapGetValueFromKey(C,A,D)).
+logen(rule,rule(l(conf(k('.'(mul(A,B),C)),state(D))),r(conf(k('.'(A,'.'(mul(hole,B),C))),state(D))))) :- 
+   resnot( (logen(rescall,number(A))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(mul(hole,B),C))),state(D))),r(conf(k('.'(mul(A,B),C)),state(D))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(mul(A,B),C)),state(D))),r(conf(k('.'(B,'.'(mul(A,hole),C))),state(D))))) :- 
+   resnot( (logen(rescall,number(B))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(mul(B,hole),C))),state(D))),r(conf(k('.'(mul(B,A),C)),state(D))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(mul(A,B),C)),state(D))),r(conf(k('.'(E,C)),state(D))))) :- 
+   logen(rescall,number(A)), logen(rescall,number(B)), logen(rescall,is(E,*(A,B))).
+logen(rule,rule(l(conf(k('.'(add(A,B),C)),state(D))),r(conf(k('.'(A,'.'(add(hole,B),C))),state(D))))) :- 
+   resnot( (logen(rescall,number(A))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(add(hole,B),C))),state(D))),r(conf(k('.'(add(A,B),C)),state(D))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(add(A,B),C)),state(D))),r(conf(k('.'(B,'.'(add(A,hole),C))),state(D))))) :- 
+   resnot( (logen(rescall,number(B))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(add(B,hole),C))),state(D))),r(conf(k('.'(add(B,A),C)),state(D))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(add(A,B),C)),state(D))),r(conf(k('.'(E,C)),state(D))))) :- 
+   logen(rescall,number(A)), logen(rescall,number(B)), logen(rescall,is(E,+(A,B))).
+logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k('.'(B,'.'(assign(var(A),hole),C))),state(D))))) :- 
+   resnot( (logen(rescall,number(B))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(assign(var(B),hole),C))),state(D))),r(conf(k('.'(assign(var(B),A),C)),state(D))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k(C),state(E))))) :- 
+   logen(rescall,number(B)), logen(memo,mapContainsKey(D,A)), logen(unfold,mapUpdateValueOfKey(D,A,B,E)).
+logen(rule,rule(l(conf(k('.'(assign(var(A),B),C)),state(D))),r(conf(k(C),state(E))))) :- 
+   logen(rescall,number(B)), resnot( (logen(memo,mapContainsKey(D,A))) ), logen(unfold,mapInsertNewKeyValuePair(D,pair(A,B),E)).
+logen(rule,rule(l(conf(k('.'(seq(A,B),C)),state(D))),r(conf(k('.'(A,'.'(B,C))),state(D))))).
+logen(rule,rule(l(conf(k('.'(if(A,B,C),D)),state(E))),r(conf(k('.'(A,'.'(if(hole,B,C),D))),state(E))))) :- 
+   resnot( (logen(rescall,number(A))) ).
+logen(rule,rule(l(conf(k('.'(A,'.'(if(hole,B,C),D))),state(E))),r(conf(k('.'(if(A,B,C),D)),state(E))))) :- 
+   logen(rescall,number(A)).
+logen(rule,rule(l(conf(k('.'(if(A,B,C),D)),state(E))),r(conf(k('.'(B,D)),state(E))))) :- 
+   logen(rescall,number(A)), logen(rescall,\=(A,0)).
+logen(rule,rule(l(conf(k('.'(if(A,B,C),D)),state(E))),r(conf(k('.'(C,D)),state(E))))) :- 
+   logen(rescall,number(A)), logen(call,=(A,0)).
+logen(rule,rule(l(conf(k('.'(skip,A)),state(B))),r(conf(k(A),state(B))))).
+logen(rule,rule(l(conf(k('.'(while(A,B),C)),state(D))),r(conf(k('.'(if(A,seq(B,while(A,B)),skip),C)),state(D))))).
+logen(rewrite,rewrite([],A,A)).
+logen(rewrite,rewrite('.'(A,B),C,D)) :- 
+   logen(unfold,rule(l(conf(k('.'(A,B)),state(C))),r(conf(k(E),state(F))))), logen(memo,rewrite(E,F,D)).
+
+logen(test1,test1(A)) :- 
+   logen(unfold,rewrite([seq(assign(var(x),5),while(var(x),assign(var(x),add(var(x),-1))))],[],Y)).
+logen(test2,test2(A)) :- 
+   logen(unfold,rewrite('.'(assign(var(x),5),[]),[],A)).
+logen(test3,test3(A)) :- 
+   logen(unfold,rewrite([skip],[],Y)).
+logen(mapUpdateValueOfKey,mapUpdateValueOfKey('.'(pair(A,B),C),A,D,'.'(pair(A,D),C))).
+logen(mapUpdateValueOfKey,mapUpdateValueOfKey('.'(A,B),C,D,E)) :- 
+   logen(unfold,mapUpdateValueOfKey(B,C,D,E)).
+logen(mapInsertNewKeyValuePair,mapInsertNewKeyValuePair(A,B,'.'(B,A))).
